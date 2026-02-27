@@ -277,9 +277,9 @@ class OutputHandler(BaseOutputHandler):
     def __init__(
         self,
         tag: str,
-        metric_names: Optional[list[str] | str] = None,
+        metric_names: list[str | None | str] = None,
         output_transform: Callable | None = None,
-        global_step_transform: Optional[Callable[[Engine, str | Events], int]] = None,
+        global_step_transform: Callable[[Engine, str | Events | None, int]] = None,
         sync: bool | None = None,
         state_attributes: list[str] | None = None,
     ):
@@ -341,9 +341,7 @@ class OptimizerParamsHandler(BaseOptimizerParamsHandler):
             )
     """
 
-    def __init__(
-        self, optimizer: Optimizer, param_name: str = "lr", tag: str | None = None, sync: bool | None = None
-    ):
+    def __init__(self, optimizer: Optimizer, param_name: str = "lr", tag: str | None = None, sync: bool | None = None):
         super().__init__(optimizer, param_name, tag)
         if sync is not None:
             warn("The sync argument for the WandBLoggers is no longer used, and may be removed in the future")

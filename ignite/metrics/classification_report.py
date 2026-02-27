@@ -128,7 +128,7 @@ def ClassificationReport(
 
     def _wrapper(
         re: torch.Tensor, pr: torch.Tensor, f: torch.Tensor, a_re: torch.Tensor, a_pr: torch.Tensor, a_f: torch.Tensor
-    ) -> Collection[str] | Dict:
+    ) -> Collection[str] | dict:
         if pr.shape != re.shape:
             raise ValueError(
                 "Internal error: Precision and Recall have mismatched shapes: "

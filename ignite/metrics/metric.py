@@ -357,7 +357,7 @@ class Metric(Serializable, metaclass=ABCMeta):
     """
 
     # public class attribute
-    required_output_keys: Tuple | None = ("y_pred", "y")
+    required_output_keys: tuple | None = ("y_pred", "y")
     # for backward compatibility
     _required_output_keys = required_output_keys
 
@@ -640,9 +640,7 @@ class Metric(Serializable, metaclass=ABCMeta):
         return engine.has_event_handler(self.completed, usage.COMPLETED)
 
     def _state_dict_per_rank(self) -> OrderedDict:
-        def func(
-            x: torch.Tensor | Metric | None | float, **kwargs: Any
-        ) -> torch.Tensor | float | OrderedDict | None:
+        def func(x: torch.Tensor | Metric | None | float, **kwargs: Any) -> torch.Tensor | float | OrderedDict | None:
             if isinstance(x, Metric):
                 return x._state_dict_per_rank()
             if x is None or isinstance(x, (int, float, torch.Tensor)):
@@ -653,7 +651,7 @@ class Metric(Serializable, metaclass=ABCMeta):
                     " numeric types, tensor, Metric or sequence/mapping of metrics."
                 )
 
-        state: OrderedDict[str, torch.Tensor | List | Dict | None] = OrderedDict()
+        state: OrderedDict[str, torch.Tensor | list | dict | None] = OrderedDict()
         for attr_name in self._state_dict_all_req_keys:
             if attr_name not in self.__dict__:
                 raise ValueError(
@@ -809,10 +807,10 @@ class Metric(Serializable, metaclass=ABCMeta):
 
         return MetricsLambda(lambda x: x[index], self)
 
-    def __getstate__(self) -> Dict:
+    def __getstate__(self) -> dict:
         return self.__dict__
 
-    def __setstate__(self, d: Dict) -> None:
+    def __setstate__(self, d: dict) -> None:
         self.__dict__.update(d)
 
 

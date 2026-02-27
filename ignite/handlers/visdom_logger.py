@@ -366,9 +366,9 @@ class OutputHandler(BaseOutputHandler, _BaseVisDrawer):
     def __init__(
         self,
         tag: str,
-        metric_names: Optional[list[str] | str] = None,
+        metric_names: list[str | None | str] = None,
         output_transform: Callable | None = None,
-        global_step_transform: Optional[Callable[[Engine, str | Events], int]] = None,
+        global_step_transform: Callable[[Engine, str | Events | None, int]] = None,
         show_legend: bool = False,
         state_attributes: list[str] | None = None,
     ):
@@ -426,9 +426,7 @@ class OptimizerParamsHandler(BaseOptimizerParamsHandler, _BaseVisDrawer):
             )
     """
 
-    def __init__(
-        self, optimizer: Optimizer, param_name: str = "lr", tag: str | None = None, show_legend: bool = False
-    ):
+    def __init__(self, optimizer: Optimizer, param_name: str = "lr", tag: str | None = None, show_legend: bool = False):
         super().__init__(optimizer, param_name, tag)
         _BaseVisDrawer.__init__(self, show_legend=show_legend)
 
