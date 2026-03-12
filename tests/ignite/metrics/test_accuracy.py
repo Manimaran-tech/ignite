@@ -498,5 +498,3 @@ def test_skip_unrolling():
     state = State(output=(y_pred, y_true))
     engine = MagicMock(state=state)
     acc.iteration_completed(engine)
-
-
