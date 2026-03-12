@@ -53,9 +53,20 @@ def test_get_sequence_transform():
     assert y_multi_t.shape == (4,)
     assert y_multi_t.tolist() == [1, 1, 0, 1]
 
+    # test 3D tensors matched shaping (N, C, L) with (N, C, L)
+    y_pred_3d = torch.tensor([[[0.1, 0.9], [0.8, 0.2]], [[0.3, 0.7], [0.5, 0.5]]])
+    y_3d = torch.tensor([[[1, 0], [1, 1]], [[0, 1], [0, 0]]])
+    transform_3d = get_sequence_transform()
+    y_pred_3d_t, y_3d_t = transform_3d((y_pred_3d, y_3d))
+    
+    assert y_pred_3d_t.shape == (8,)
+    assert y_3d_t.shape == (8,)
+    assert y_pred_3d_t.tolist() == pytest.approx([0.1, 0.9, 0.8, 0.2, 0.3, 0.7, 0.5, 0.5])
+    assert y_3d_t.tolist() == [1, 0, 1, 1, 0, 1, 0, 0]
+
     # test bad shapes
     y_bad = torch.tensor([1, 0, 1])
-    with pytest.raises(ValueError, match="must be 3D and 2D arrays, or both 2D arrays"):
+    with pytest.raises(ValueError, match="must be 3D/2D, 3D/3D, or 2D/2D arrays"):
         transform((y_pred_bin, y_bad))
 
     y_pred_bad = torch.tensor([[[1], [2]], [[3], [4]]])
