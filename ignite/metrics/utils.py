@@ -1,9 +1,9 @@
 import torch
-from typing import Callable, Iterable, Sequence, Union
+from typing import Callable, Iterable, Sequence
 
 
 def get_sequence_transform(
-    ignore_index: Union[int, Iterable[int], None] = None,
+    ignore_index: int | Iterable[int] | None = None,
     output_transform: Callable = lambda x: x,
 ) -> Callable:
     """

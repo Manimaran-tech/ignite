@@ -263,5 +263,3 @@ class Accuracy(_BaseClassification):
         if self._num_examples == 0:
             raise NotComputableError("Accuracy must have at least one example before it can be computed.")
         return self._num_correct.item() / self._num_examples
-
-
