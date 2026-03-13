@@ -35,18 +35,8 @@ def get_sequence_transform(
                     f"y_pred and y have incompatible sequence shapes: "
                     f"y_pred={y_pred.shape} vs y={y.shape}"
                 )
-        elif y_pred.ndimension() == 3 and y.ndimension() == 3:
-            # y_pred is (N, L, C) or (N, C, L), y has the same shape
-            if y_pred.shape == y.shape:
-                y_pred = y_pred.reshape(-1)
-                y = y.reshape(-1)
-            else:
-                raise ValueError(
-                    f"y_pred and y have incompatible sequence shapes: "
-                    f"y_pred={y_pred.shape} vs y={y.shape}"
-                )
-        elif y_pred.ndimension() == 2 and y.ndimension() == 2:
-            # y_pred is (N, L), y is (N, L)
+        elif y_pred.ndimension() in (2, 3) and y.ndimension() == y_pred.ndimension():
+            # y_pred is (N, L) or (N, L, C)/(N, C, L) and y has identical shape
             if y_pred.shape == y.shape:
                 y_pred = y_pred.reshape(-1)
                 y = y.reshape(-1)
