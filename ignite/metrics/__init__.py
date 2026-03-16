@@ -3,7 +3,6 @@ import ignite.metrics.regression
 
 from ignite.metrics.accumulation import Average, GeometricAverage, VariableAccumulation
 from ignite.metrics.accuracy import Accuracy
-from ignite.metrics.utils import get_sequence_transform
 from ignite.metrics.average_precision import AveragePrecision
 from ignite.metrics.classification_report import ClassificationReport
 from ignite.metrics.cohen_kappa import CohenKappa
@@ -55,7 +54,6 @@ __all__ = [
     "Loss",
     "MetricGroup",
     "MetricsLambda",
-    "get_sequence_transform",
     "MeanAbsoluteError",
     "MeanPairwiseDistance",
     "MeanSquaredError",

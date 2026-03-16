@@ -113,42 +113,32 @@ class _BaseClassification(Metric):
         def wrapper(output: Sequence[torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
             y_pred, y = output_transform(output)
 
-            if y_pred.ndimension() == 3 and y.ndimension() == 2:
-                if y_pred.shape[:2] == y.shape:
-                    # y_pred is (N, L, C), y is (N, L)
-                    y_pred = y_pred.reshape(-1, y_pred.size(-1))
-                elif y_pred.shape[0] == y.shape[0] and y_pred.shape[2] == y.shape[1]:
-                    # y_pred is (N, C, L), y is (N, L)
-                    y_pred = y_pred.transpose(1, 2).reshape(-1, y_pred.size(1))
-                else:
-                    raise ValueError(
-                        f"y_pred and y have incompatible sequence shapes: "
-                        f"y_pred={y_pred.shape} vs y={y.shape}"
-                    )
-                y = y.reshape(-1)
-            elif y_pred.ndimension() == 3 and y.ndimension() == 3:
-                if y_pred.shape != y.shape:
-                    raise ValueError(
-                        f"y_pred and y have incompatible sequence shapes: "
-                        f"y_pred={y_pred.shape} vs y={y.shape}"
-                    )
-                # One-hot encoded: y_pred (N, L, C), y (N, L, C)
-                y_pred = y_pred.reshape(-1, y_pred.size(-1))
-                y = y.reshape(-1, y.size(-1)).argmax(dim=-1)
-            elif y_pred.ndimension() == 2 and y.ndimension() == 2:
-                if y_pred.shape != y.shape:
-                    raise ValueError(
-                        f"y_pred and y have incompatible sequence shapes: "
-                        f"y_pred={y_pred.shape} vs y={y.shape}"
-                    )
-                # Binary: y_pred (N, L), y (N, L)
-                y_pred = y_pred.reshape(-1)
-                y = y.reshape(-1)
-            else:
+            ndp, ndy = y_pred.ndimension(), y.ndimension()
+
+            if not ((ndp == 3 and ndy in (2, 3)) or (ndp == ndy == 2)):
                 raise ValueError(
                     f"y_pred and y must be 3D/2D, 3D/3D, or 2D/2D tensors "
-                    f"for sequence transformation. Got {y_pred.ndimension()}D and {y.ndimension()}D."
+                    f"for sequence transformation. Got {ndp}D and {ndy}D."
                 )
+
+            incompat = f"y_pred and y have incompatible sequence shapes: y_pred={y_pred.shape} vs y={y.shape}"
+            if ndp == 3 and ndy == 2:
+                if y_pred.shape[:2] == y.shape:  # (N, L, C), y is (N, L)
+                    y_pred = y_pred.reshape(-1, y_pred.size(-1))
+                elif y_pred.shape[0] == y.shape[0] and y_pred.shape[2] == y.shape[1]:  # (N, C, L)
+                    y_pred = y_pred.transpose(1, 2).reshape(-1, y_pred.size(1))
+                else:
+                    raise ValueError(incompat)
+                y = y.reshape(-1)
+            elif ndp == 3:  # 3D/3D one-hot: y_pred (N, L, C), y (N, L, C)
+                if y_pred.shape != y.shape:
+                    raise ValueError(incompat)
+                y_pred = y_pred.reshape(-1, y_pred.size(-1))
+                y = y.reshape(-1, y.size(-1)).argmax(dim=-1)
+            else:  # 2D/2D binary: y_pred (N, L), y (N, L)
+                if y_pred.shape != y.shape:
+                    raise ValueError(incompat)
+                y_pred, y = y_pred.reshape(-1), y.reshape(-1)
 
             if ignore_index is not None:
                 if isinstance(ignore_index, Iterable):
