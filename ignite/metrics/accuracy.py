@@ -101,6 +101,11 @@ class _BaseClassification(Metric):
 
         It flattens the sequences and filters out the padding (``ignore_index``).
 
+        Supported input shapes are:
+        - ``y_pred``: ``(N, L, C)``, ``y``: ``(N, L)``
+        - ``y_pred``: ``(N, C, L)``, ``y``: ``(N, L)``
+        - ``y_pred``: ``(N, L)``, ``y``: ``(N, L)``
+
         Args:
             ignore_index: An integer or an iterable of integers representing padding or
                 special tokens to be masked out from the sequence evaluation.
@@ -114,12 +119,8 @@ class _BaseClassification(Metric):
             y_pred, y = output_transform(output)
 
             ndp, ndy = y_pred.ndimension(), y.ndimension()
-
-            if not ((ndp == 3 and ndy in (2, 3)) or (ndp == ndy == 2)):
-                raise ValueError(
-                    f"y_pred and y must be 3D/2D, 3D/3D, or 2D/2D tensors "
-                    f"for sequence transformation. Got {ndp}D and {ndy}D."
-                )
+            if not ((ndp == 3 and ndy == 2) or (ndp == ndy == 2)):
+                raise ValueError(f"Expected (3D,2D) or (2D,2D) tensors, but got y_pred={ndp}D and y={ndy}D.")
 
             incompat = f"y_pred and y have incompatible sequence shapes: y_pred={y_pred.shape} vs y={y.shape}"
             if ndp == 3 and ndy == 2:
@@ -130,11 +131,6 @@ class _BaseClassification(Metric):
                 else:
                     raise ValueError(incompat)
                 y = y.reshape(-1)
-            elif ndp == 3:  # 3D/3D one-hot: y_pred (N, L, C), y (N, L, C)
-                if y_pred.shape != y.shape:
-                    raise ValueError(incompat)
-                y_pred = y_pred.reshape(-1, y_pred.size(-1))
-                y = y.reshape(-1, y.size(-1)).argmax(dim=-1)
             else:  # 2D/2D binary: y_pred (N, L), y (N, L)
                 if y_pred.shape != y.shape:
                     raise ValueError(incompat)

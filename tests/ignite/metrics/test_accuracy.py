@@ -531,19 +531,16 @@ def test_get_sequence_transform_shapes():
     assert y_pred_bin_t.shape == (8,)
     assert y_bin_t.shape == (8,)
 
-    # test one-hot encoded (N, L, C) with (N, L, C)
-    y_pred_3d = torch.tensor([[[0.1, 0.9], [0.8, 0.2]], [[0.3, 0.7], [0.5, 0.5]]])
-    y_3d = torch.tensor([[[0, 1], [1, 0]], [[0, 1], [1, 0]]])
-    y_pred_3d_t, y_3d_t = transform((y_pred_3d, y_3d))
-
-    assert y_pred_3d_t.shape == (4, 2)
-    assert y_3d_t.shape == (4,)
-    assert y_3d_t.tolist() == [1, 0, 1, 0]
-
     # test bad shapes: 1D target
     y_bad = torch.tensor([1, 0, 1])
-    with pytest.raises(ValueError, match="must be 3D/2D, 3D/3D, or 2D/2D tensors"):
+    with pytest.raises(ValueError, match="Expected \\(3D,2D\\) or \\(2D,2D\\) tensors"):
         transform((y_pred_bin, y_bad))
+
+    # test bad shapes: unsupported 3D/3D
+    y_pred_3d = torch.tensor([[[0.1, 0.9], [0.8, 0.2]], [[0.3, 0.7], [0.5, 0.5]]])
+    y_3d = torch.tensor([[[0, 1], [1, 0]], [[0, 1], [1, 0]]])
+    with pytest.raises(ValueError, match="Expected \\(3D,2D\\) or \\(2D,2D\\) tensors"):
+        transform((y_pred_3d, y_3d))
 
     # test bad shapes: incompatible 3D/2D
     y_pred_bad = torch.tensor([[[1], [2]], [[3], [4]]])
